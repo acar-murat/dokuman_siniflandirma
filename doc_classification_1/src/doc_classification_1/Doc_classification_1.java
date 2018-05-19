@@ -3,7 +3,7 @@
  */
 package doc_classification_1;
 
-import static com.google.common.io.Files.map;
+
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
@@ -14,10 +14,10 @@ import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
+
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javafx.scene.shape.Arc;
 import zemberek.morphology.TurkishMorphology;
 import zemberek.morphology.analysis.SingleAnalysis;
 import zemberek.morphology.analysis.WordAnalysis;
@@ -54,13 +54,21 @@ public class Doc_classification_1 {
          gram3Ozellikler= ozellikSadelestir(gram3Ozellikler);
          
          ArrayList<GramN> egitimBelgeleri= egitimKumesi(gramBelgeler);
+         
          ArrayList<GramN> testBelgeleri= testKumesi(gramBelgeler);
          
         
-       
-//        for (int i = 0; i < egitimBelgeleri.size(); i++) {
-//            System.out.println(egitimBelgeleri.get(i).kategoriAdı);
-//        }
+        System.out.println("egitim belgeleri boyutu :  "+ egitimBelgeleri.size());
+        System.out.println("test belgeleri boyutu : "+testBelgeleri.size());
+        
+        
+        for (int i = 0; i < egitimBelgeleri.size(); i++) {
+            System.out.println(egitimBelgeleri.get(i).kategoriAdı);
+            
+        }
+        
+//        System.out.println("----->>>> "+ testBelgeleri.size());
+//        System.out.println(" ----->>>>>" +egitimBelgeleri.size());
         
 //        System.out.println(gramBelgeler.get(1).dosyaYolu + " "+gramBelgeler.get(1).dosyaAdı+" "+ gramBelgeler.get(1).kategoriAdı);
 //        
@@ -83,36 +91,25 @@ public class Doc_classification_1 {
     
     /**
      * egitim yapılacak gramN nesnelerinden oluşan egitim kümesini bir liste olarak verir.
-     * @param gramBelgeler
-     * @return 
+     * @param gramBelgeler  tum belgelere ait liste
+     * @return egitim listesi 
      */
     
     public static ArrayList<GramN> egitimKumesi(ArrayList<GramN> gramBelgeler){
         
-        ArrayList<GramN> egitimSiniflari= new   ArrayList<GramN>(); 
-        
+        ArrayList<GramN> egitimSiniflari = new ArrayList<>(); 
+      //  egitimSiniflari.ensureCapacity(gramBelgeler.size()*4/5);
         
         int skip= gramBelgeler.size()*1/20;
 
         int trainingSize = (int) Math.ceil((double)gramBelgeler.size()*3/20);
+
         int  gramSize =gramBelgeler.size();
         
-        
         for (int i = 0; i < gramSize; i++) {
-            
-            if (i%trainingSize==0 && i+skip!=gramSize && i!=0) {
-                i+=skip;
-            }
-            
-            egitimSiniflari.add(gramBelgeler.get(i));
-            
-            
-            
+           egitimSiniflari.addAll(gramBelgeler.subList(i, i+trainingSize));
+           i+= trainingSize+skip;
         }
-        
-        
-
-        
         return egitimSiniflari;
     }
     
@@ -131,22 +128,20 @@ public class Doc_classification_1 {
         int testSize = gramBelgeler.size()*1/20;
         int skip= (int) Math.ceil((double)gramBelgeler.size()*3/20);
         int  gramSize =gramBelgeler.size();
+        int count=0;
         
         
-        for (int i = 0; i < gramSize; i++) {
+        for (int i = testSize; i < gramSize; i++) {
             
-            if (i%testSize==0 && i+skip!=gramSize  ) {
-                i+=skip;
-            }
             
-            testSiniflari.add(gramBelgeler.get(i));
-            
+              testSiniflari.addAll(gramBelgeler.subList(i, i+testSize));
+              i+=testSize+skip;
             
             
         }
         
         
-
+        
         
         return testSiniflari;
     }
