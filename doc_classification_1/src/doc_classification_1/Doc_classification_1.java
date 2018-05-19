@@ -45,7 +45,7 @@ public class Doc_classification_1 {
         TurkishMorphology morphology = TurkishMorphology.createWithDefaults();
         TurkishSpellChecker spellChecker = new TurkishSpellChecker(morphology);
         
-        File folder = new File("C:\\Users\\murat acar\\Documents\\Ders Notları\\3.Sınıf Dersleri\\Yazılım Laboratuarı\\Döküman Sınıflandırma(2_3)\\1150haber\\raw_texts\\");
+        File folder = new File("1150haber\\raw_texts\\");
         dokumanAl(folder);
 
         ArrayList<GramN> gramBelgeler = gramVeFrekansCikart(dokumanlar,spellChecker,morphology);
