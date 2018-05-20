@@ -14,11 +14,9 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javafx.scene.shape.Arc;
 import zemberek.morphology.TurkishMorphology;
 import zemberek.morphology.analysis.SingleAnalysis;
 import zemberek.morphology.analysis.WordAnalysis;
@@ -60,41 +58,35 @@ public class Doc_classification_1 {
         ArrayList<GramN> egitimBelgeleri = egitimKumesi(gramBelgeler);
 
         ArrayList<GramN> testBelgeleri = testKumesi(gramBelgeler);
-        
-        
-/****************************** egitim kısmı *********************************************************/
+      
+
+        /**
+         * **************************** egitim kısmı ********************************************************
+         */
         double varyans = 0, ortalama = 0;
         String kategoriAdi = "";
-        
-        
 
         HashMap<String, Double> geciciSozlukVar = new HashMap<>();
         HashMap<String, Double> geciciSozlukOrt = new HashMap<>();
 
-        for (int i = 0; i < egitimBelgeleri.size(); i++) {
+        for (int i = 0; i < egitimBelgeleri.size(); ) {
 
             for (String key : gram2Ozellikler.keySet()) {
 
-                
+                kategoriAdi = egitimBelgeleri.get(i).kategoriAdı;
 
-                    kategoriAdi = egitimBelgeleri.get(i).kategoriAdı;
-                    
-                    
-                    
-                    varyans = varyans2GramFonk( egitimBelgeleri.subList(i, (i + egitimBelgeleri.size() / 5)-1), key);
-                    ortalama = ortalama2GramFonk(egitimBelgeleri.subList(i, (i + egitimBelgeleri.size() / 5)-1), key);
+                varyans = varyans2GramFonk(egitimBelgeleri.subList(i, (i + egitimBelgeleri.size() / 5) ), key);
+                ortalama = ortalama2GramFonk(egitimBelgeleri.subList(i, (i + egitimBelgeleri.size() / 5)), key);
 
-                    geciciSozlukVar.put(key, varyans);
-                    geciciSozlukOrt.put(key, ortalama);
-
-                
+                geciciSozlukVar.put(key, varyans);
+                geciciSozlukOrt.put(key, ortalama);
 
             }
 
             varyans2GramDeger.put(kategoriAdi, geciciSozlukVar);
             ortalama2GramDeger.put(kategoriAdi, geciciSozlukOrt);
 
-            i += (egitimBelgeleri.size() / 5)-1;
+            i += (egitimBelgeleri.size() / 5) ;
 
             geciciSozlukVar = new HashMap<>();
             geciciSozlukOrt = new HashMap<>();
@@ -104,34 +96,34 @@ public class Doc_classification_1 {
 
             for (String key : gram3Ozellikler.keySet()) {
 
-                
+                kategoriAdi = egitimBelgeleri.get(i).kategoriAdı;
 
-                    kategoriAdi = egitimBelgeleri.get(i).kategoriAdı;
-             
-                    varyans = varyans3GramFonk( egitimBelgeleri.subList(i, (i + egitimBelgeleri.size() / 5)-1), key);
-                    ortalama = ortalama3GramFonk(egitimBelgeleri.subList(i, (i + egitimBelgeleri.size() / 5)-1), key);
+                varyans = varyans3GramFonk(egitimBelgeleri.subList(i, (i + egitimBelgeleri.size() / 5) - 1), key);
+                ortalama = ortalama3GramFonk(egitimBelgeleri.subList(i, (i + egitimBelgeleri.size() / 5) - 1), key);
 
-                    geciciSozlukVar.put(key, varyans);
-                    geciciSozlukOrt.put(key, ortalama);
-
-                
+                geciciSozlukVar.put(key, varyans);
+                geciciSozlukOrt.put(key, ortalama);
 
             }
 
             varyans3GramDeger.put(kategoriAdi, geciciSozlukVar);
             ortalama3GramDeger.put(kategoriAdi, geciciSozlukOrt);
 
-            i += (egitimBelgeleri.size() / 5)-1;
+            i += (egitimBelgeleri.size() / 5) - 1;
 
             geciciSozlukVar = new HashMap<>();
             geciciSozlukOrt = new HashMap<>();
         }
 
-    /*********************************************************************************************/    
-        
-        
-        
-        
+        /**
+         * ******************************************************************************************
+         */
+        // logaritması alinmiş kosullu olasilik formulu
+        double ort = 0, var = 0;
+        double kosulluOlasilik = Math.log10(Math.exp((-Math.pow((6 - ort), 2)) / (2 * Math.pow(var, 2))) / Math.sqrt(2 * Math.PI * Math.pow(var, 2)));
+
+        naiveBayesTest(varyans2GramDeger, ortalama2GramDeger, testBelgeleri);
+
 //        System.out.println("egitim belgeleri boyutu :  " + egitimBelgeleri.size());
 //        System.out.println("test belgeleri boyutu : " + testBelgeleri.size());
 //
@@ -152,26 +144,78 @@ public class Doc_classification_1 {
 //            System.out.println("|     " + key + "     |   " + gram3Ozellikler.get(key) + "   |");
 //        });
 //       System.out.println(icerik("C:\\Users\\murat acar\\Documents\\Ders Notları\\3.Sınıf Dersleri\\Yazılım Laboratuarı\\Döküman Sınıflandırma(2_3)\\1150haber\\raw_texts\\ekonomi\\2.txt"));
-
-        String key = "siyasi";
+//
+//        String key = "ekonomi";
 //            System.out.println("|     " + key + "     |   " );
 //            
 //                   varyans2GramDeger.get(key).keySet().forEach((keyIn) -> {
-//            System.out.println( varyans2GramDeger.get(key).get(keyIn) + "   |");
+//            System.out.println( "part : "+ keyIn+"------------"+ varyans2GramDeger.get(key).get(keyIn) + "   |");
 //              });
 //            
 //    
 //                   
-            System.out.println("|     " + key + "     |   " );
+//            System.out.println("|     " + key + "     |   " );
+//            
+//                   ortalama2GramDeger.get(key).keySet().forEach((keyIn) -> {
+//            System.out.println( ortalama2GramDeger.get(key).get(keyIn) + "   |");
+//              });
+    }
+
+    public static void naiveBayesTest(
+            HashMap<String, HashMap<String, Double>> varyans2GramDeger,
+            HashMap<String, HashMap<String, Double>> ortalama2GramDeger,
+            ArrayList<GramN> testBelgeleri) {
+
+        double ort = 0, var = 0, kosulluSonuc = 0;
+        double kosulluOlasilik = 0;
+   
+        for (int i = 0; i < testBelgeleri.size(); i++) {
+
+            for (String key : gram2Ozellikler.keySet()) {
+                
+                
+                
+                ort = ortalama2GramDeger.get("spor").get(key);
+                var = varyans2GramDeger.get("spor").get(key);
+                
+               
+               
+                if (ort != 0 || var!=0) {
+                    if (testBelgeleri.get(i).checkKey2(key)) {
+                         System.out.println( testBelgeleri.get(i).dosyaAdı+"--"+key +"----"+
+                                testBelgeleri.get(i).getFrequency2(key) +"-"+ort +"-"+
+                                 var);
+                        
+                        kosulluOlasilik = Math.log10(Math.exp(
+                                (-Math.pow((testBelgeleri.get(i).getFrequency2(key) - ort), 2)) 
+                                / (2 * var)) / 
+                                Math.sqrt(Math.PI * var * 2));
+
+                   } else {
+                         kosulluOlasilik = Math.log10(Math.exp(
+                                (-Math.pow((0 - ort), 2)) 
+                                / (2 * var)) / 
+                                Math.sqrt(Math.PI * var * 2));
+                    }
+                    
+                }
+                else{
+                    kosulluOlasilik=0;
+                }
+                   
+
+
+                kosulluSonuc += kosulluOlasilik;
+
+            }
             
-                   ortalama2GramDeger.get(key).keySet().forEach((keyIn) -> {
-            System.out.println( ortalama2GramDeger.get(key).get(keyIn) + "   |");
-              });
             
-        
-    
-    
-    
+        //  System.out.println("------>  " + testBelgeleri.get(i).dosyaAdı +"   "+testBelgeleri.get(i).kategoriAdı+ " -- " + kosulluSonuc);
+
+            kosulluSonuc = 0;
+        }
+
+        //return testBelgeleri;
     }
 
     public static double varyans2GramFonk(List<GramN> egitimKategori, String gram) {
@@ -549,7 +593,7 @@ public class Doc_classification_1 {
     private static ArrayList<String> stopWordsRead() throws FileNotFoundException, UnsupportedEncodingException, IOException {
 
         ArrayList<String> lSepWords = new ArrayList<>();
-        String dosyaYolu = "C:\\Users\\murat acar\\Documents\\Ders Notları\\3.Sınıf Dersleri\\Yazılım Laboratuarı\\Döküman Sınıflandırma(2_3)\\stop_words.txt";
+        String dosyaYolu = "stop_words.txt";
 
         String line;
         String paragraph = new String();

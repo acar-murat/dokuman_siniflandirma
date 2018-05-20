@@ -17,17 +17,11 @@ public class GramN {
     public String kategoriAdı;
     public String dosyaAdı;
     public String dosyaYolu;
-    
+   
+    public String tahmin;
+   
     private Map<String, Integer> gram2 = new HashMap<>();
     private Map<String, Integer> gram3 = new HashMap<>();
-    
-    
-    public Map<String, Integer> mean2 = new HashMap<>();
-    public Map<String, Integer> mean3 = new HashMap<>();
-    
-    public Map<String, Integer> variance2 = new HashMap<>();
-    public Map<String, Integer> variance3 = new HashMap<>();
-
     
     public void showAllGrams2() {
 
@@ -40,7 +34,7 @@ public class GramN {
 
     public int getFrequency2(String key) {
 
-        return gram2.get(key);
+            return gram2.get(key);
 
     }
 
