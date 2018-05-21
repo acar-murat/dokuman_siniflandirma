@@ -58,10 +58,10 @@ public class Doc_classification_1 {
         ArrayList<GramN> egitimBelgeleri = egitimKumesi(gramBelgeler);
 
         ArrayList<GramN> testBelgeleri = testKumesi(gramBelgeler);
-      
 
         /**
-         * **************************** egitim kısmı ********************************************************
+         * **************************** egitim kısmı
+         * ********************************************************
          */
         double varyans = 0, ortalama = 0;
         String kategoriAdi = "";
@@ -69,13 +69,13 @@ public class Doc_classification_1 {
         HashMap<String, Double> geciciSozlukVar = new HashMap<>();
         HashMap<String, Double> geciciSozlukOrt = new HashMap<>();
 
-        for (int i = 0; i < egitimBelgeleri.size(); ) {
+        for (int i = 0; i < egitimBelgeleri.size();) {
 
             for (String key : gram2Ozellikler.keySet()) {
 
                 kategoriAdi = egitimBelgeleri.get(i).kategoriAdı;
 
-                varyans = varyans2GramFonk(egitimBelgeleri.subList(i, (i + egitimBelgeleri.size() / 5) ), key);
+                varyans = varyans2GramFonk(egitimBelgeleri.subList(i, (i + egitimBelgeleri.size() / 5)), key);
                 ortalama = ortalama2GramFonk(egitimBelgeleri.subList(i, (i + egitimBelgeleri.size() / 5)), key);
 
                 geciciSozlukVar.put(key, varyans);
@@ -86,7 +86,7 @@ public class Doc_classification_1 {
             varyans2GramDeger.put(kategoriAdi, geciciSozlukVar);
             ortalama2GramDeger.put(kategoriAdi, geciciSozlukOrt);
 
-            i += (egitimBelgeleri.size() / 5) ;
+            i += (egitimBelgeleri.size() / 5);
 
             geciciSozlukVar = new HashMap<>();
             geciciSozlukOrt = new HashMap<>();
@@ -122,15 +122,11 @@ public class Doc_classification_1 {
         double ort = 0, var = 0;
         double kosulluOlasilik = Math.log10(Math.exp((-Math.pow((6 - ort), 2)) / (2 * Math.pow(var, 2))) / Math.sqrt(2 * Math.PI * Math.pow(var, 2)));
 
-        naiveBayesTest(varyans2GramDeger, ortalama2GramDeger, testBelgeleri);
-
+        naiveBayesTest2(varyans2GramDeger, ortalama2GramDeger, testBelgeleri);
+        naiveBayesTest3(varyans3GramDeger, ortalama3GramDeger, testBelgeleri);
 //        System.out.println("egitim belgeleri boyutu :  " + egitimBelgeleri.size());
 //        System.out.println("test belgeleri boyutu : " + testBelgeleri.size());
 //
-//        for (int i = 0; i < (egitimBelgeleri.size() / 5) + 1; i++) {
-//            System.out.println(egitimBelgeleri.get(i).kategoriAdı);
-//
-//        }
 //        System.out.println("----->>>> "+ testBelgeleri.size());
 //        System.out.println(" ----->>>>>" +egitimBelgeleri.size());
 //        System.out.println(gramBelgeler.get(1).dosyaYolu + " "+gramBelgeler.get(1).dosyaAdı+" "+ gramBelgeler.get(1).kategoriAdı);
@@ -161,62 +157,277 @@ public class Doc_classification_1 {
 //              });
     }
 
-    public static void naiveBayesTest(
+    public static void naiveBayesTest2(
             HashMap<String, HashMap<String, Double>> varyans2GramDeger,
             HashMap<String, HashMap<String, Double>> ortalama2GramDeger,
             ArrayList<GramN> testBelgeleri) {
-
-        double ort = 0, var = 0, kosulluSonuc = 0;
+  int ekonomiFP=0,saglikFP=0,siyasiFP=0,magazinFP=0,sporFP=0;
+        double ort = 0, var = 0, kosulluSonuc = 0, enBuyuk = -9999999;
         double kosulluOlasilik = 0;
-   
+        String buyukKategori = "";
+        int counter = 0,ekonomiTP=0,saglikTP=0,siyasiTP=0,magazinTP=0,sporTP=0;
+        int ekonomiFN=0,saglikFN=0,siyasiFN=0,magazinFN=0,sporFN=0;
         for (int i = 0; i < testBelgeleri.size(); i++) {
 
-            for (String key : gram2Ozellikler.keySet()) {
-                
-                
-                
-                ort = ortalama2GramDeger.get("spor").get(key);
-                var = varyans2GramDeger.get("spor").get(key);
-                
-               
-               
-                if (ort != 0 || var!=0) {
-                    if (testBelgeleri.get(i).checkKey2(key)) {
-                         System.out.println( testBelgeleri.get(i).dosyaAdı+"--"+key +"----"+
-                                testBelgeleri.get(i).getFrequency2(key) +"-"+ort +"-"+
-                                 var);
-                        
-                        kosulluOlasilik = Math.log10(Math.exp(
-                                (-Math.pow((testBelgeleri.get(i).getFrequency2(key) - ort), 2)) 
-                                / (2 * var)) / 
-                                Math.sqrt(Math.PI * var * 2));
+            for (String kategori : varyans2GramDeger.keySet()) {
 
-                   } else {
-                         kosulluOlasilik = Math.log10(Math.exp(
-                                (-Math.pow((0 - ort), 2)) 
-                                / (2 * var)) / 
-                                Math.sqrt(Math.PI * var * 2));
+                for (String key : gram2Ozellikler.keySet()) {
+
+                    ort = ortalama2GramDeger.get(kategori).get(key);
+                    var = varyans2GramDeger.get(kategori).get(key);
+
+                    if (ort != 0 || var != 0) {
+                        if (testBelgeleri.get(i).checkKey2(key) && Math.exp((-Math.pow((testBelgeleri.get(i).getFrequency2(key) - ort), 2)) / (2 * var)) != 0) {
+//                         System.out.println( testBelgeleri.get(i).dosyaAdı+"--"+key +"----"+
+//                                Math.exp(
+//                                (-Math.pow((testBelgeleri.get(i).getFrequency2(key) - ort), 2)) 
+//                                / (2 * var)));
+
+                            kosulluOlasilik = Math.log10(Math.exp(
+                                    (-Math.pow((testBelgeleri.get(i).getFrequency2(key) - ort), 2))
+                                    / (2 * var))
+                                    / Math.sqrt(Math.PI * var * 2));
+
+                        } else {
+                            kosulluOlasilik = Math.log10(Math.exp(
+                                    (-Math.pow((0 - ort), 2))
+                                    / (2 * var))
+                                    / Math.sqrt(Math.PI * var * 2));
+                        }
+
+                    } else {
+                        kosulluOlasilik = 0;
                     }
-                    
+
+                    kosulluSonuc += kosulluOlasilik;
+
                 }
-                else{
-                    kosulluOlasilik=0;
+
+                if (enBuyuk < kosulluSonuc) {
+                    enBuyuk = kosulluSonuc;
+                    buyukKategori = kategori;
                 }
-                   
 
-
-                kosulluSonuc += kosulluOlasilik;
-
+              //  System.out.println("------>  " + testBelgeleri.get(i).dosyaAdı + "   " + kategori + " -- " + kosulluSonuc);
+                kosulluSonuc = 0;
             }
-            
-            
-        //  System.out.println("------>  " + testBelgeleri.get(i).dosyaAdı +"   "+testBelgeleri.get(i).kategoriAdı+ " -- " + kosulluSonuc);
 
-            kosulluSonuc = 0;
+            testBelgeleri.get(i).tahmin = buyukKategori;
+            //  testBelgeleri.set(i, ));
+
+           // System.out.println("------>  " + testBelgeleri.get(i).dosyaAdı + "  kategori " + testBelgeleri.get(i).kategoriAdı + "  tahmin: " + buyukKategori + " -- " + enBuyuk);
+            //System.out.println("----------------------------------------------");
+
+            enBuyuk = -9999999;
+            buyukKategori = "";
+
         }
 
-        //return testBelgeleri;
+        for (int i = 0; i < testBelgeleri.size()   ; i++) {
+            if (testBelgeleri.get(i).kategoriAdı.equals(testBelgeleri.get(i).tahmin)) {
+                      if(testBelgeleri.get(i).tahmin.equals("ekonomi"))
+                ekonomiTP+=1;
+             if(testBelgeleri.get(i).tahmin.equals("saglik"))
+                saglikTP+=1;
+             if(testBelgeleri.get(i).tahmin.equals("magazin"))
+                magazinTP+=1;
+             if(testBelgeleri.get(i).tahmin.equals("spor"))
+                sporTP+=1;
+             if(testBelgeleri.get(i).tahmin.equals("siyasi"))
+                siyasiTP+=1;
+                
+                counter+=1;
+            }else{
+                      if(testBelgeleri.get(i).tahmin.equals("ekonomi"))
+                ekonomiFN+=1;
+             if(testBelgeleri.get(i).tahmin.equals("saglik"))
+                saglikFN+=1;
+             if(testBelgeleri.get(i).tahmin.equals("magazin"))
+                magazinFN+=1;
+             if(testBelgeleri.get(i).tahmin.equals("spor"))
+                sporFN+=1;
+             if(testBelgeleri.get(i).tahmin.equals("siyasi"))
+                siyasiFN+=1;
+            }
+            
+                      if(testBelgeleri.get(i).tahmin.equals("ekonomi"))
+                ekonomiTP+=1;
+             if(testBelgeleri.get(i).tahmin.equals("saglik"))
+                saglikTP+=1;
+             if(testBelgeleri.get(i).tahmin.equals("magazin"))
+                magazinTP+=1;
+             if(testBelgeleri.get(i).tahmin.equals("spor"))
+                sporTP+=1;
+             if(testBelgeleri.get(i).tahmin.equals("siyasi"))
+                siyasiTP+=1;
+         //   System.out.println("    |"+testBelgeleri.get(i).kategoriAdı + "   " + testBelgeleri.get(i).tahmin);
+        }      
+        Accuracy2(counter, testBelgeleri.size());
+        System.out.println("Doğruluk oranı %"+counter*100/testBelgeleri.size()+"Doğru dosya/ Toplam Sayfa   "+counter+"/"+testBelgeleri.size());
+         System.out.println("SiyasiTP "+siyasiTP+" - SağlıkTP " + saglikTP+ " - EkonomiTP "+ekonomiTP+" - SporTP  " + sporTP + "magazinTP "+ magazinTP);
+         System.out.println("SiyasiFP "+ (siyasiFP-siyasiTP) +" - SağlıkFP " + (saglikFP-saglikTP)+ " - EkonomiFP "+(ekonomiFP-ekonomiTP)+" - SporFP  " + (sporFP-sporTP) + "magazinFP "+ (magazinFP-magazinTP));
+         double ekonomiP=(double)ekonomiTP/(ekonomiTP+ekonomiFP);
+         double saglikP=(double)saglikTP/(saglikTP+saglikFP);
+         double siyasiP=(double)siyasiTP/(siyasiTP+siyasiFP);
+         double sporP=(double)sporTP/(sporTP+sporFP);
+         double magazinP=(double)magazinTP/(magazinTP+magazinFP);
+         double avarageP= (ekonomiP+saglikP+siyasiP+sporP+magazinP)/5;
+         System.out.println("Avarage Precision =  "+avarageP);
+          
+         double ekonomiR=(double)ekonomiTP/(ekonomiTP+ekonomiFN);
+         double saglikR=(double)saglikTP/(saglikTP+saglikFN);
+         double siyasiR=(double)siyasiTP/(siyasiTP+siyasiFN);
+         double sporR=(double)sporTP/(sporTP+sporFN);
+         double magazinR=(double)magazinTP/(magazinTP+magazinFN);
+         double avarageR=(ekonomiR+saglikR+siyasiR+sporR+magazinR)/5;
+         System.out.println("Avarage Recall  =  "+ avarageR);
+         
+         double F_Measure=2*(avarageP*avarageR)/(avarageP+avarageR);
+         
+         System.out.println("F Measure değeri   =  "+ F_Measure);
+         System.out.println("---------------------2GRAM--------------------------------");      // return testBelgeleri;
     }
+    
+     public static void naiveBayesTest3(
+            HashMap<String, HashMap<String, Double>> varyans3GramDeger,
+            HashMap<String, HashMap<String, Double>> ortalama3GramDeger,
+            ArrayList<GramN> testBelgeleri) {
+
+        double ort = 0, var = 0, kosulluSonuc = 0, enBuyuk = -9999999;
+        double kosulluOlasilik = 0;
+        String buyukKategori = "";
+        int counter = 0, ekonomiTP=0,saglikTP=0,siyasiTP=0,magazinTP=0,sporTP=0;
+        int ekonomiFP=0,saglikFP=0,siyasiFP=0,magazinFP=0,sporFP=0;
+        int ekonomiFN=0,saglikFN=0,siyasiFN=0,magazinFN=0,sporFN=0;
+        for (int i = 0; i < testBelgeleri.size(); i++) {
+
+            for (String kategori : varyans3GramDeger.keySet()) {
+
+                for (String key : gram3Ozellikler.keySet()) {
+
+                    ort = ortalama3GramDeger.get(kategori).get(key);
+                    var = varyans3GramDeger.get(kategori).get(key);
+
+                    if (ort != 0 || var != 0) {
+                        if (testBelgeleri.get(i).checkKey3(key) && Math.exp((-Math.pow((testBelgeleri.get(i).getFrequency3(key) - ort), 2)) / (2 * var)) != 0) {
+//                         System.out.println( testBelgeleri.get(i).dosyaAdı+"--"+key +"----"+
+//                                Math.exp(
+//                                (-Math.pow((testBelgeleri.get(i).getFrequency2(key) - ort), 2)) 
+//                                / (2 * var)));
+
+                            kosulluOlasilik = Math.log10(Math.exp(
+                                    (-Math.pow((testBelgeleri.get(i).getFrequency3(key) - ort), 2))
+                                    / (2 * var))
+                                    / Math.sqrt(Math.PI * var * 2));
+
+                        } else {
+                            kosulluOlasilik = Math.log10(Math.exp(
+                                    (-Math.pow((0 - ort), 2))
+                                    / (2 * var))
+                                    / Math.sqrt(Math.PI * var * 2));
+                        }
+
+                    } else {
+                        kosulluOlasilik = 0;
+                    }
+
+                    kosulluSonuc += kosulluOlasilik;
+
+                }
+
+                if (enBuyuk < kosulluSonuc) {
+                    enBuyuk = kosulluSonuc;
+                    buyukKategori = kategori;
+                }              
+
+              //  System.out.println("------>  " + testBelgeleri.get(i).dosyaAdı + "   " + kategori + " -- " + kosulluSonuc);
+                kosulluSonuc = 0;
+            }
+
+            testBelgeleri.get(i).tahmin = buyukKategori;
+            //  testBelgeleri.set(i, ));
+
+           // System.out.println("------>  " + testBelgeleri.get(i).dosyaAdı + "  kategori " + testBelgeleri.get(i).kategoriAdı + "  tahmin: " + buyukKategori + " -- " + enBuyuk);
+            //System.out.println("----------------------------------------------");
+
+            enBuyuk = -9999999;
+            buyukKategori = "";
+
+        }
+
+        for (int i = 0; i < testBelgeleri.size()   ; i++) {
+            if (testBelgeleri.get(i).kategoriAdı.equals(testBelgeleri.get(i).tahmin)) {
+                    if(testBelgeleri.get(i).tahmin.equals("ekonomi"))
+                ekonomiTP+=1;
+             if(testBelgeleri.get(i).tahmin.equals("saglik"))
+                saglikTP+=1;
+             if(testBelgeleri.get(i).tahmin.equals("magazin"))
+                magazinTP+=1;
+             if(testBelgeleri.get(i).tahmin.equals("spor"))
+                sporTP+=1;
+             if(testBelgeleri.get(i).tahmin.equals("siyasi"))
+                siyasiTP+=1;
+                counter+=1;
+            }else{
+                      if(testBelgeleri.get(i).tahmin.equals("ekonomi"))
+                ekonomiFN+=1;
+             if(testBelgeleri.get(i).tahmin.equals("saglik"))
+                saglikFN+=1;
+             if(testBelgeleri.get(i).tahmin.equals("magazin"))
+                magazinFN+=1;
+             if(testBelgeleri.get(i).tahmin.equals("spor"))
+                sporFN+=1;
+             if(testBelgeleri.get(i).tahmin.equals("siyasi"))
+                siyasiFN+=1;
+            }
+                 if(testBelgeleri.get(i).tahmin.equals("ekonomi"))
+                ekonomiFP+=1;
+             if(testBelgeleri.get(i).tahmin.equals("saglik"))
+                saglikFP+=1;
+             if(testBelgeleri.get(i).tahmin.equals("magazin"))
+                magazinFP+=1;
+             if(testBelgeleri.get(i).tahmin.equals("spor"))
+                sporFP+=1;
+             if(testBelgeleri.get(i).tahmin.equals("siyasi"))
+                siyasiFP+=1;
+            
+  //          System.out.println("    |"+testBelgeleri.get(i).kategoriAdı + "   " + testBelgeleri.get(i).tahmin);
+        }
+         Accuracy3(counter, testBelgeleri.size());
+         System.out.println("Doğruluk oranı %"+counter*100/testBelgeleri.size()+"Doğru dosya/ Toplam Sayfa   "+counter+"/"+testBelgeleri.size());
+         System.out.println("SiyasiTP "+siyasiTP+" - SağlıkTP " + saglikTP+ " - EkonomiTP "+ekonomiTP+" - SporTP  " + sporTP + "magazinTP "+ magazinTP);
+         System.out.println("SiyasiFP "+ (siyasiFP-siyasiTP) +" - SağlıkFP " + (saglikFP-saglikTP)+ " - EkonomiFP "+(ekonomiFP-ekonomiTP)+" - SporFP  " + (sporFP-sporTP) + "magazinFP "+ (magazinFP-magazinTP));
+         System.out.println("SiyasiFN "+siyasiFN+" - SağlıkFN " + saglikFN+ " - EkonomiFN "+ekonomiFN+" - SporFN  " + sporFN + "magazinFN "+ magazinFN);
+         System.out.println("SiyasiFN "+siyasiFN+" - SağlıkFN " + saglikFN+ " - EkonomiFN "+ekonomiFN+" - SporFN  " + sporFN + "magazinFN "+ magazinFN);
+         double ekonomiP=(double)ekonomiTP/(ekonomiTP+ekonomiFP);
+         double saglikP=(double)saglikTP/(saglikTP+saglikFP);
+         double siyasiP=(double)siyasiTP/(siyasiTP+siyasiFP);
+         double sporP=(double)sporTP/(sporTP+sporFP);
+         double magazinP=(double)magazinTP/(magazinTP+magazinFP);
+         double avarageP= (ekonomiP+saglikP+siyasiP+sporP+magazinP)/5;
+         System.out.println("Avarage Precision =  "+avarageP);
+         
+          double ekonomiR=(double)ekonomiTP/(ekonomiTP+ekonomiFN);
+         double saglikR=(double)saglikTP/(saglikTP+saglikFN);
+         double siyasiR=(double)siyasiTP/(siyasiTP+siyasiFN);
+         double sporR=(double)sporTP/(sporTP+sporFN);
+         double magazinR=(double)magazinTP/(magazinTP+magazinFN);
+         double avarageR=(ekonomiR+saglikR+siyasiR+sporR+magazinR)/5;
+         System.out.println("Avarage Recall  =  "+ avarageR);
+         
+          double F_Measure=2*(avarageP*avarageR)/(avarageP+avarageR);
+         
+         System.out.println("F Measure değeri   =  "+ F_Measure);
+         System.out.println("-----------------3GRAM-----------------------");
+// return testBelgeleri;
+    }
+    
+    public static void Accuracy2(double tahmin,double gercek){
+        System.out.println("2 Gram için Accuracy degeri ="+ tahmin/gercek);
+    } 
+    public static void Accuracy3(double tahmin,double gercek){
+        System.out.println("3 Gram için Accuracy degeri ="+ tahmin/gercek);
+    } 
 
     public static double varyans2GramFonk(List<GramN> egitimKategori, String gram) {
 
